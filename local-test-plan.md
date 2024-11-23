@@ -25,7 +25,7 @@ Address compatibility issues in the `pom.xml` file:
 
 - Update Node.js version to `v16.20.0` (replace `v12.14.0`).
   - Reason: Node.js `v12.14.0` for the `darwin-arm64` architecture is unavailable, causing a 404 error.
-- Updated npm version to `8.19.4` to match the Node.js version.
+- Update npm version to `8.19.4` to match the Node.js version.
 
 ## **4. Build and Package the Application**
 
@@ -41,7 +41,7 @@ Address compatibility issues in the `pom.xml` file:
    ./mvnw clean package
    ```
 
-3. Verified that the `target` directory contains the generated JAR file:
+3. Verify that the `target` directory contains the generated JAR file:
    - `target/react-and-spring-data-rest-0.0.1-SNAPSHOT.jar`.
 
 ## **5. Build Docker Image**
