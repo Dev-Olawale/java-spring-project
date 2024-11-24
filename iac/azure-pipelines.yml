@@ -1,0 +1,59 @@
+trigger: none
+
+parameters:
+  - name: workingDirectory
+    type: string
+    default: "./iac"
+  - name: environments
+    type: object
+    default:
+        group: "springboot-react"
+
+
+stages:
+- stage: terraformValidation
+  displayName: "Terraform Validation"
+  jobs:
+  - job: terraformValidate
+    displayName: "Validate Terraform Code"
+    steps:
+      - task: TerraformInstaller@1
+        displayName: "Install Terraform"
+        inputs:
+          terraformVersion: 1.5.7
+          
+      - script: |
+          terraform init
+        displayName: "Terraform Init"
+        workingDirectory: ${{parameters.workingDirectory}}
+        env:
+          ARM_SUBSCRIPTION_ID: $(subscriptionId)
+          ARM_TENANT_ID: $(tenantId)
+          ARM_CLIENT_ID: $(clientId)
+          ARM_CLIENT_SECRET: $(clientSecret)
+
+      - script: |
+          terraform validate
+        displayName: "Terraform Validate"
+        workingDirectory: ${{parameters.workingDirectory}}
+
+      - script: |
+          terraform plan -out=terraform-plan -input=false
+        displayName: "Terraform Plan"
+        workingDirectory: ${{parameters.workingDirectory}}
+        env:
+          ARM_SUBSCRIPTION_ID: $(subscriptionId)
+          ARM_TENANT_ID: $(tenantId)
+          ARM_CLIENT_ID: $(clientId)
+          ARM_CLIENT_SECRET: $(clientSecret)
+      
+      - script: |
+          chmod -R a+x .terraform/providers/
+          terraform apply -auto-approve -input=false tfplan
+        displayName: "Terraform apply"
+        workingDirectory: ${{parameters.workingDirectory}}
+        env:
+          ARM_SUBSCRIPTION_ID: $(subscriptionId)
+          ARM_TENANT_ID: $(tenantId)
+          ARM_CLIENT_ID: $(clientId)
+          ARM_CLIENT_SECRET: $(clientSecret)
