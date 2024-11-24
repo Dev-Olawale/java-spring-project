@@ -1,0 +1,35 @@
+trigger:
+- main
+
+stages:
+- stage : buildAndDeploy
+  jobs:
+  - job: build
+    displayName: "Build and Deploy"
+    steps:
+      - task: Maven@4
+        displayName: "Build and Test Maven App"
+        inputs:
+            goals: 'clean package -DskipTests=false'
+
+      - task: Docker@2
+        displayName: "Build and Publish Docker Image"
+        inputs:
+          containerRegistry: "springbootReactRegistry"
+          repository: "springbootReactRepo"
+          command: "buildAndPush"
+          Dockerfile: "**/Dockerfile"
+
+      - task: AzureCLI@2
+        displayName: 'Deploy Docker Image'
+        inputs:
+          azureSubscription: 'springbootReactServiceConnection'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az webapp config container set --name $(appName)\
+              --resource-group $(resourceGroup)\
+              --docker-registry-server-url $(dockerRegistryURL)\
+              --docker-registry-server-user $(dockerRegistryUser)\
+              --docker-registry-server-password $(dockerRegistryPassword)\
+              --docker-custom-image-name $(dockerImageName)
